@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testual Adventures · La Bibbia</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F4EE;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE6;
+  --border: #E0DAD0;
+  --border2: #C8C0B4;
+  --text: #1A1714;
+  --text2: #6B6158;
+  --text3: #9E9589;
+  --accent: #3D6B4F;
+  --accent-light: #E8F2EC;
+  --accent-dark: #274A35;
+  --warm: #8B5E3C;
+  --warm-light: #F5EDE4;
+  --warm-dark: #5C3D22;
+  --gold: #B8974A;
+  --gold-light: #F5EDD8;
+  --serif: 'Crimson Pro', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --radius: 8px;
+  --radius-lg: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  min-height: 100vh;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Header */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.game-logo {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  font-style: italic;
+}
+.game-logo span { color: var(--gold); }
+
+/* API Key screen */
+.key-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  max-width: 480px;
+  margin: 3rem auto 0;
+}
+.key-card h1 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+}
+.key-card .subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+.field-wrap { position: relative; margin-bottom: 10px; }
+.field-wrap input {
+  width: 100%;
+  padding: 12px 44px 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color .2s;
+  outline: none;
+}
+.field-wrap input:focus { border-color: var(--accent); }
+.eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text3); font-size: 18px; padding: 0; line-height: 1; }
+.error-msg { font-size: 12px; color: #C0392B; margin-bottom: 10px; min-height: 16px; }
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .2s;
+  margin-bottom: 1rem;
+}
+.btn-primary:hover { background: var(--accent-dark); }
+.key-hint { font-size: 12px; color: var(--text3); line-height: 1.6; }
+.key-hint a { color: var(--accent); }
+
+/* Home */
+.start-strip {
+  background: var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.start-strip:hover { background: var(--accent-dark); }
+.start-strip h2 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 300;
+  color: #fff;
+}
+.start-strip p { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.start-arrow { font-size: 28px; color: rgba(255,255,255,0.6); }
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 2rem;
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.testament-row {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  padding: 10px 0 4px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.book-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.book-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.book-card .bnum { font-size: 10px; color: var(--text3); display: block; margin-bottom: 2px; }
+.book-card .bname { font-size: 13px; color: var(--text); display: block; font-weight: 500; }
+.book-card .bgen {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 4px;
+  display: block;
+}
+.book-card .bdone { font-size: 10px; color: var(--accent); margin-top: 2px; display: block; font-weight: 500; }
+.book-card.has-done { border-color: var(--accent); background: var(--accent-light); }
+
+.key-status {
+  font-size: 12px;
+  color: var(--text3);
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.key-status a { color: var(--accent); cursor: pointer; }
+
+/* Chapter select */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text3);
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--sans);
+  transition: color .15s;
+}
+.back-btn:hover { color: var(--text); }
+.page-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+.page-meta { font-size: 13px; color: var(--text3); margin-bottom: 1.5rem; }
+
+.genre-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+}
+.genre-narrative { background: #E8F0FB; color: #2A4E8A; }
+.genre-law { background: #FBE8E8; color: #8A2A2A; }
+.genre-poetry { background: #F5EDD8; color: #7A5A1A; }
+.genre-prophecy { background: #EDE8FB; color: #4A2A8A; }
+.genre-doctrine { background: #E8FBF0; color: #1A6A3A; }
+
+.chap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+.chap-btn {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 4px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+  text-align: center;
+  background: var(--surface);
+  transition: all .12s;
+  font-weight: 400;
+}
+.chap-btn:hover { border-color: var(--accent); color: var(--accent); }
+.chap-btn.done { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); font-weight: 500; }
+
+/* Game */
+.score-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.score-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.score-track { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.score-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .5s ease; }
+.score-counts { font-size: 11px; color: var(--text3); white-space: nowrap; }
+
+.narrative-block {
+  background: var(--surface);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.85;
+  color: var(--text);
+  font-weight: 300;
+}
+
+.mechanic-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--surface2);
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.question-text {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+.choice-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px 18px;
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  width: 100%;
+}
+.choice-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  transform: translateX(3px);
+}
+.choice-btn:disabled { cursor: default; }
+.choice-btn.canonical {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+.choice-btn.human {
+  background: var(--warm-light);
+  border-color: var(--warm);
+  color: var(--warm-dark);
+}
+.choice-btn.faded { opacity: 0.35; transform: none !important; }
+
+.reflection-box {
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 1.5rem;
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.7;
+  font-style: italic;
+  display: none;
+}
+.reflection-box.canonical { background: var(--accent-light); color: var(--accent-dark); border-left: 3px solid var(--accent); }
+.reflection-box.human { background: var(--warm-light); color: var(--warm-dark); border-left: 3px solid var(--warm); }
+
+.nav-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.nav-btn {
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 400;
+}
+.nav-btn:hover { border-color: var(--text2); }
+.nav-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 500; }
+.nav-btn.primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+
+.loading-wrap {
+  text-align: center;
+  padding: 3rem 0;
+}
+.loading-icon {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--text3);
+  font-style: italic;
+}
+
+.error-card {
+  background: #FBE8E8;
+  border: 1px solid #E0C0C0;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  font-size: 14px;
+  color: #7A2A2A;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="game-header">
+    <div class="game-logo">Testual Adventures · <span>La Bibbia</span></div>
+    <div id="header-score" style="font-size:12px;color:var(--text3)"></div>
+  </div>
+
+  <!-- SCHERMATA CHIAVE API -->
+  <div id="s-key" class="screen active">
+    <div class="key-card">
+      <h1>Benvenuto nel cammino</h1>
+      <p class="subtitle">Un viaggio attraverso tutti i 66 libri della Bibbia cristiana. Ogni capitolo diventa una scelta, ogni scelta racconta di te.</p>
+      <div class="field-wrap">
+        <input type="password" id="api-input" placeholder="Incolla qui la tua chiave API Google (AIza...)">
+        <button class="eye" onclick="toggleEye()">👁</button>
+      </div>
+      <div class="error-msg" id="key-err"></div>
+      <button class="btn-primary" onclick="saveKey()">Inizia il cammino →</button>
+      <p class="key-hint">Non hai una chiave? Ottienila gratis (senza carta di credito) su <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a></p>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="s-home" class="screen">
+    <div class="start-strip" onclick="startFrom(0)">
+      <div>
+        <h2>Dalla Genesi</h2>
+        <p>Inizia dall'inizio, dalla creazione</p>
+      </div>
+      <div class="start-arrow">→</div>
+    </div>
+    <div class="section-label">Oppure scegli un libro</div>
+    <div class="book-grid" id="book-grid"></div>
+    <div class="key-status">Chiave: <span id="key-preview"></span> · <a onclick="changeKey()">Cambia</a></div>
+  </div>
+
+  <!-- CAPITOLI -->
+  <div id="s-chapters" class="screen">
+    <button class="back-btn" onclick="goHome()">← Libri</button>
+    <div class="page-title" id="c-title"></div>
+    <div class="page-meta" id="c-meta"></div>
+    <div id="c-genre-badge"></div>
+    <div class="chap-grid" id="chap-grid"></div>
+  </div>
+
+  <!-- GIOCO -->
+  <div id="s-game" class="screen">
+    <button class="back-btn" onclick="goChapters()">← Capitoli</button>
+    <div class="page-meta" id="g-meta"></div>
+    <div class="page-title" id="g-title" style="margin-bottom:1.25rem"></div>
+
+    <div class="score-bar">
+      <span class="score-label">Umano</span>
+      <div class="score-track"><div class="score-fill" id="score-fill" style="width:50%"></div></div>
+      <span class="score-label">Teologico</span>
+      <span class="score-counts" id="score-counts"></span>
+    </div>
+
+    <div id="g-body"></div>
+    <div id="g-reflection" class="reflection-box"></div>
+    <div class="nav-row" id="g-nav"></div>
+  </div>
+
+</div>
+
+<script>
+const BOOKS=[
+  {t:"AT",list:[
+    {n:"Genesi",a:"Gen",c:50,g:"narrative"},{n:"Esodo",a:"Es",c:40,g:"narrative"},
+    {n:"Levitico",a:"Lv",c:27,g:"law"},{n:"Numeri",a:"Nm",c:36,g:"narrative"},
+    {n:"Deuteronomio",a:"Dt",c:34,g:"law"},{n:"Giosuè",a:"Gs",c:24,g:"narrative"},
+    {n:"Giudici",a:"Gdc",c:21,g:"narrative"},{n:"Rut",a:"Rt",c:4,g:"narrative"},
+    {n:"1 Samuele",a:"1Sam",c:31,g:"narrative"},{n:"2 Samuele",a:"2Sam",c:24,g:"narrative"},
+    {n:"1 Re",a:"1Re",c:22,g:"narrative"},{n:"2 Re",a:"2Re",c:25,g:"narrative"},
+    {n:"1 Cronache",a:"1Cr",c:29,g:"narrative"},{n:"2 Cronache",a:"2Cr",c:36,g:"narrative"},
+    {n:"Esdra",a:"Esd",c:10,g:"narrative"},{n:"Neemia",a:"Ne",c:13,g:"narrative"},
+    {n:"Ester",a:"Est",c:10,g:"narrative"},{n:"Giobbe",a:"Gb",c:42,g:"poetry"},
+    {n:"Salmi",a:"Sal",c:150,g:"poetry"},{n:"Proverbi",a:"Pr",c:31,g:"poetry"},
+    {n:"Ecclesiaste",a:"Qo",c:12,g:"poetry"},{n:"Cantico dei Cantici",a:"Ct",c:8,g:"poetry"},
+    {n:"Isaia",a:"Is",c:66,g:"prophecy"},{n:"Geremia",a:"Ger",c:52,g:"prophecy"},
+    {n:"Lamentazioni",a:"Lam",c:5,g:"poetry"},{n:"Ezechiele",a:"Ez",c:48,g:"prophecy"},
+    {n:"Daniele",a:"Dn",c:12,g:"prophecy"},{n:"Osea",a:"Os",c:14,g:"prophecy"},
+    {n:"Gioele",a:"Gl",c:3,g:"prophecy"},{n:"Amos",a:"Am",c:9,g:"prophecy"},
+    {n:"Abdia",a:"Abd",c:1,g:"prophecy"},{n:"Giona",a:"Gn",c:4,g:"narrative"},
+    {n:"Michea",a:"Mi",c:7,g:"prophecy"},{n:"Naum",a:"Na",c:3,g:"prophecy"},
+    {n:"Abacuc",a:"Abc",c:3,g:"prophecy"},{n:"Sofonia",a:"Sof",c:3,g:"prophecy"},
+    {n:"Aggeo",a:"Agg",c:2,g:"prophecy"},{n:"Zaccaria",a:"Zc",c:14,g:"prophecy"},
+    {n:"Malachia",a:"Ml",c:4,g:"prophecy"}
+  ]},
+  {t:"NT",list:[
+    {n:"Matteo",a:"Mt",c:28,g:"narrative"},{n:"Marco",a:"Mc",c:16,g:"narrative"},
+    {n:"Luca",a:"Lc",c:24,g:"narrative"},{n:"Giovanni",a:"Gv",c:21,g:"narrative"},
+    {n:"Atti degli Apostoli",a:"At",c:28,g:"narrative"},{n:"Romani",a:"Rm",c:16,g:"doctrine"},
+    {n:"1 Corinzi",a:"1Cor",c:16,g:"doctrine"},{n:"2 Corinzi",a:"2Cor",c:13,g:"doctrine"},
+    {n:"Galati",a:"Gal",c:6,g:"doctrine"},{n:"Efesini",a:"Ef",c:6,g:"doctrine"},
+    {n:"Filippesi",a:"Fil",c:4,g:"doctrine"},{n:"Colossesi",a:"Col",c:4,g:"doctrine"},
+    {n:"1 Tessalonicesi",a:"1Ts",c:5,g:"doctrine"},{n:"2 Tessalonicesi",a:"2Ts",c:3,g:"doctrine"},
+    {n:"1 Timoteo",a:"1Tm",c:6,g:"doctrine"},{n:"2 Timoteo",a:"2Tm",c:4,g:"doctrine"},
+    {n:"Tito",a:"Tt",c:3,g:"doctrine"},{n:"Filemone",a:"Flm",c:1,g:"doctrine"},
+    {n:"Ebrei",a:"Eb",c:13,g:"doctrine"},{n:"Giacomo",a:"Gc",c:5,g:"doctrine"},
+    {n:"1 Pietro",a:"1Pt",c:5,g:"doctrine"},{n:"2 Pietro",a:"2Pt",c:3,g:"doctrine"},
+    {n:"1 Giovanni",a:"1Gv",c:5,g:"doctrine"},{n:"2 Giovanni",a:"2Gv",c:1,g:"doctrine"},
+    {n:"3 Giovanni",a:"3Gv",c:1,g:"doctrine"},{n:"Giuda",a:"Gd",c:1,g:"doctrine"},
+    {n:"Apocalisse",a:"Ap",c:22,g:"prophecy"}
+  ]}
+];
+
+let allBooks=[];
+BOOKS.forEach(g=>g.list.forEach(b=>allBooks.push({...b,testament:g.t})));
+
+const GENRE_LABELS={narrative:"Narrativo",law:"Legge",poetry:"Poesia",prophecy:"Profezia",doctrine:"Dottrina"};
+const GENRE_PROMPTS={
+  narrative:"Racconta in modo immersivo il contenuto del capitolo (2-3 frasi, stile letterario evocativo). Il giocatore si trova dentro la storia. Proponi una scelta d'azione concreta.",
+  law:"Presenta la legge o il precetto centrale del capitolo (1-2 frasi semplici). Chiedi al giocatore 'Tu lo faresti?' con opzioni ancorate alla vita quotidiana concreta.",
+  poetry:"Evoca liberamente lo spirito del capitolo poetico (1-2 frasi liriche, senza citare versetti letterali). Poi proponi di completare una frase poetica ispirata al testo.",
+  prophecy:"Presenta il tema profetico del capitolo in modo narrativo (2 frasi). Poi invita il giocatore a intuire dove va la profezia prima di rivelarla.",
+  doctrine:"Riassumi il principio dottrinale centrale del capitolo (1-2 frasi chiare). Proponi: quale di queste affermazioni senti più tua?"
+};
+
+let S={key:'',bookIdx:0,chapter:1,canonical:0,human:0,total:0,completed:{},answered:false,currentData:null};
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function goHome(){show('s-home')}
+function goChapters(){openBook(S.bookIdx)}
+
+function toggleEye(){
+  const i=document.getElementById('api-input');
+  i.type=i.type==='password'?'text':'password';
+}
+
+function saveKey(){
+  const k=document.getElementById('api-input').value.trim();
+  const err=document.getElementById('key-err');
+  if(!k){err.textContent='Inserisci la chiave API.';return}
+  if(!k.startsWith('AIza')){err.textContent='La chiave sembra non valida. Deve iniziare con "AIza".';return}
+  S.key=k;
+  err.textContent='';
+  document.getElementById('key-preview').textContent=k.slice(0,10)+'...';
+  renderHome();
+  show('s-home');
+}
+function changeKey(){show('s-key')}
+
+function renderHome(){
+  const grid=document.getElementById('book-grid');
+  let html='';
+  BOOKS.forEach(group=>{
+    html+=`<div class="testament-row">${group.t==='AT'?'Antico Testamento':'Nuovo Testamento'}</div>`;
+    group.list.forEach(b=>{
+      const idx=allBooks.findIndex(x=>x.a===b.a);
+      const doneCount=Object.keys(S.completed).filter(k=>k.startsWith(b.a+'-')).length;
+      const hasDone=doneCount>0;
+      html+=`<div class="book-card${hasDone?' has-done':''}" onclick="startFrom(${idx})">
+        <span class="bnum">${idx+1}</span>
+        <span class="bname">${b.n}</span>
+        <span class="bgen">${GENRE_LABELS[b.g]}</span>
+        ${hasDone?`<span class="bdone">✓ ${doneCount} cap.</span>`:''}
+      </div>`;
+    });
+  });
+  grid.innerHTML=html;
+  updateHeaderScore();
+}
+
+function updateHeaderScore(){
+  const el=document.getElementById('header-score');
+  if(S.total===0){el.textContent='';return}
+  const pct=Math.round((S.canonical/S.total)*100);
+  el.textContent=`${S.total} scelte · ${pct}% teologico`;
+}
+
+function startFrom(idx){S.bookIdx=idx;S.chapter=1;loadChapter()}
+
+function openBook(idx){
+  S.bookIdx=idx;
+  const b=allBooks[idx];
+  document.getElementById('c-title').textContent=b.n;
+  document.getElementById('c-meta').textContent=`${b.testament} · ${b.c} capitoli`;
+  const badge=document.getElementById('c-genre-badge');
+  badge.innerHTML=`<span class="genre-badge genre-${b.g}" style="margin-bottom:1.25rem">${GENRE_LABELS[b.g]}</span>`;
+  let html='';
+  for(let c=1;c<=b.c;c++){
+    const key=b.a+'-'+c;
+    const done=S.completed[key];
+    html+=`<button class="chap-btn${done?' done':''}" onclick="goToChapter(${idx},${c})">${c}</button>`;
+  }
+  document.getElementById('chap-grid').innerHTML=html;
+  show('s-chapters');
+}
+
+function goToChapter(idx,c){S.bookIdx=idx;S.chapter=c;loadChapter()}
+
+function updateScore(){
+  const pct=S.total===0?50:Math.round((S.canonical/S.total)*100);
+  document.getElementById('score-fill').style.width=pct+'%';
+  document.getElementById('score-counts').textContent=S.total>0?`${S.canonical}T / ${S.human}U`:'';
+  updateHeaderScore();
+}
+
+async function loadChapter(){
+  S.answered=false;
+  S.currentData=null;
+  const b=allBooks[S.bookIdx];
+  document.getElementById('g-meta').textContent=`${b.testament} · ${b.n}`;
+  document.getElementById('g-title').textContent=`Capitolo ${S.chapter}`;
+  document.getElementById('g-reflection').style.display='none';
+  document.getElementById('g-nav').innerHTML='';
+  updateScore();
+  show('s-game');
+
+  document.getElementById('g-body').innerHTML=`
+    <div class="loading-wrap">
+      <div class="loading-icon"></div>
+      <div class="loading-text">Aprendo ${b.n} ${S.chapter}…</div>
+    </div>`;
+
+  const prompt=`Sei il narratore di un gioco di avventura biblica in italiano.
+Libro: ${b.n} (${b.testament}) — Capitolo ${S.chapter} di ${b.c}
+Genere: ${GENRE_LABELS[b.g]}
+
+Istruzione: ${GENRE_PROMPTS[b.g]||GENRE_PROMPTS.narrative}
+
+REGOLE:
+- Lingua: italiano letterario, caldo, mai giudicante
+- A volte leggero e ironico sulla nostra umanità comune
+- 2 o 3 scelte: ESATTAMENTE UNA di tipo "canonical" (fedele al messaggio biblico), le altre "human" (comprensibili, terrene, mai pesantemente negative)
+- Riflessioni post-scelta sempre positive, mai punitive
+- Non citare versetti letterali. Racconta con parole tue
+- Sii fedele al contenuto reale del capitolo
+
+Rispondi SOLO con JSON valido:
+{
+  "narrative": "testo narrativo evocativo",
+  "mechanic": "etichetta breve (es: Scelta d'azione)",
+  "question": "domanda al giocatore",
+  "choices": [
+    {"text": "testo scelta", "type": "canonical", "reflection": "riflessione positiva"},
+    {"text": "testo scelta", "type": "human", "reflection": "riflessione, a volte ironica"}
+  ]
+}`;
+
+  try{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.key}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{temperature:0.85,maxOutputTokens:1000}
+      })
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error?.message||`Errore ${res.status}`);
+    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    S.currentData=parsed;
+    renderGame(parsed);
+  }catch(err){
+    let msg=err.message;
+    if(msg.includes('API_KEY_INVALID')||msg.includes('400'))msg='Chiave API non valida. Torna alla schermata iniziale e riprova.';
+    if(msg.includes('Failed to fetch'))msg='Errore di rete. Controlla la connessione internet e riprova.';
+    document.getElementById('g-body').innerHTML=`
+      <div class="error-card">${msg}</div>
+      <div class="nav-row">
+        <button class="nav-btn primary" onclick="loadChapter()">Riprova</button>
+        <button class="nav-btn" onclick="changeKey()">Cambia chiave</button>
+      </div>`;
+  }
+}
+
+function renderGame(d){
+  let html=`<div class="narrative-block">${d.narrative}</div>`;
+  html+=`<div class="mechanic-badge">${d.mechanic}</div>`;
+  html+=`<div class="question-text">${d.question}</div>`;
+  html+=`<div class="choices">`;
+  d.choices.forEach((ch,i)=>{
+    html+=`<button class="choice-btn" onclick="pick(${i})" id="ch-${i}">${ch.text}</button>`;
+  });
+  html+=`</div>`;
+  document.getElementById('g-body').innerHTML=html;
+  document.getElementById('g-reflection').style.display='none';
+}
+
+function pick(idx){
+  if(S.answered||!S.currentData)return;
+  S.answered=true;
+  const d=S.currentData;
+  const ch=d.choices[idx];
+  const key=allBooks[S.bookIdx].a+'-'+S.chapter;
+  S.completed[key]=ch.type;
+  if(ch.type==='canonical')S.canonical++;else S.human++;
+  S.total++;
+  updateScore();
+  d.choices.forEach((_,i)=>{
+    const btn=document.getElementById('ch-'+i);
+    if(!btn)return;
+    btn.disabled=true;
+    if(i===idx)btn.classList.add(ch.type);
+    else btn.classList.add('faded');
+  });
+  const ref=document.getElementById('g-reflection');
+  ref.textContent=ch.reflection;
+  ref.className='reflection-box '+ch.type;
+  ref.style.display='block';
+  renderNav();
+}
+
+function renderNav(){
+  const b=allBooks[S.bookIdx];
+  let html='';
+  if(S.chapter<b.c){
+    html+=`<button class="nav-btn primary" onclick="goToChapter(${S.bookIdx},${S.chapter+1})">Capitolo ${S.chapter+1} →</button>`;
+  }
+  if(S.chapter===b.c&&S.bookIdx<allBooks.length-1){
+    const next=allBooks[S.bookIdx+1];
+    html+=`<button class="nav-btn primary" onclick="startFrom(${S.bookIdx+1})">${next.n} →</button>`;
+  }
+  html+=`<button class="nav-btn" onclick="goChapters()">Capitoli</button>`;
+  html+=`<button class="nav-btn" onclick="goHome()">Libri</button>`;
+  document.getElementById('g-nav').innerHTML=html;
+}
+</script>
+</body>
+</html>
