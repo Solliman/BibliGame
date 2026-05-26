@@ -434,12 +434,12 @@ body {
       <h1>Benvenuto nel cammino</h1>
       <p class="subtitle">Un viaggio attraverso tutti i 66 libri della Bibbia cristiana. Ogni capitolo diventa una scelta, ogni scelta racconta di te.</p>
       <div class="field-wrap">
-        <input type="password" id="api-input" placeholder="Incolla qui la tua chiave API Google (AIza...)">
+        <input type="password" id="api-input" placeholder="Incolla qui la tua chiave API Groq (gsk_...)">
         <button class="eye" onclick="toggleEye()">👁</button>
       </div>
       <div class="error-msg" id="key-err"></div>
       <button class="btn-primary" onclick="saveKey()">Inizia il cammino →</button>
-      <p class="key-hint">Non hai una chiave? Ottienila gratis (senza carta di credito) su <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a></p>
+      <p class="key-hint">Non hai una chiave? Ottienila gratis su <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a></p>
     </div>
   </div>
 
@@ -555,7 +555,7 @@ function saveKey(){
   const k=document.getElementById('api-input').value.trim();
   const err=document.getElementById('key-err');
   if(!k){err.textContent='Inserisci la chiave API.';return}
-  if(!k.startsWith('AIza')){err.textContent='La chiave sembra non valida. Deve iniziare con "AIza".';return}
+  if(!k.startsWith('gsk_')&&!k.startsWith('AIza')){err.textContent='La chiave sembra non valida.';return}
   S.key=k;
   err.textContent='';
   document.getElementById('key-preview').textContent=k.slice(0,10)+'...';
@@ -663,18 +663,19 @@ Rispondi SOLO con JSON valido:
 }`;
 
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${S.key}`,{
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.key},
       body:JSON.stringify({
-        contents:[{parts:[{text:prompt}]}],
-        generationConfig:{temperature:0.85,maxOutputTokens:2048}
+        model:'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages:[{role:'user',content:prompt}],
+        temperature:0.85,
+        max_tokens:2048
       })
     });
     const data=await res.json();
     if(!res.ok)throw new Error(data.error?.message||`Errore ${res.status}`);
-    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-    // Estrai JSON in modo robusto
+    const raw=data.choices?.[0]?.message?.content||'';
     const clean=raw.replace(/```json|```/g,'').trim();
     const jsonStart=clean.indexOf('{');
     const jsonEnd=clean.lastIndexOf('}');
