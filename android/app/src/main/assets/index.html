@@ -1022,16 +1022,16 @@ function spawnParticles(x, y, emojis) {
 let timerInterval = null;
 function startTimer() {
   stopTimer();
-  S.timeLeft = 30;
+  S.timeLeft = 60;
   const fill = document.getElementById('timer-fill');
   const txt = document.getElementById('timer-text');
   fill.style.width = '100%';
   fill.classList.remove('timer-critical');
-  txt.textContent = '30s';
+  txt.textContent = '60s';
   
   timerInterval = setInterval(() => {
     S.timeLeft--;
-    fill.style.width = (S.timeLeft / 30 * 100) + '%';
+    fill.style.width = (S.timeLeft / 60 * 100) + '%';
     txt.textContent = S.timeLeft + 's';
     
     if (S.timeLeft <= 10) {
@@ -1514,7 +1514,7 @@ function renderGame(d){
   html+=`
     <div class="timer-bar" id="timer-bar-container" style="margin-bottom: 1.25rem;">
       <div class="timer-fill" id="timer-fill" style="width: 100%"></div>
-      <div class="timer-text" id="timer-text">30s</div>
+      <div class="timer-text" id="timer-text">60s</div>
     </div>`;
     
   html+=`<div class="mechanic-badge">${d.mechanic}</div>`;
