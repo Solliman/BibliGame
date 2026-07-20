@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Testual Adventures · La Bibbia</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F4EE;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE6;
+  --border: #E0DAD0;
+  --border2: #C8C0B4;
+  --text: #1A1714;
+  --text2: #6B6158;
+  --text3: #9E9589;
+  --accent: #3D6B4F;
+  --accent-light: #E8F2EC;
+  --accent-dark: #274A35;
+  --warm: #8B5E3C;
+  --warm-light: #F5EDE4;
+  --warm-dark: #5C3D22;
+  --gold: #B8974A;
+  --gold-light: #F5EDD8;
+  --serif: 'Crimson Pro', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --radius: 8px;
+  --radius-lg: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+  min-height: 100vh;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Header */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-top: calc(env(safe-area-inset-top) + 0.75rem);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.game-logo {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  font-style: italic;
+}
+.game-logo span { color: var(--gold); }
+
+/* API Key screen */
+.key-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  max-width: 480px;
+  margin: 3rem auto 0;
+}
+.key-card h1 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+}
+.key-card .subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+.field-wrap { position: relative; margin-bottom: 10px; }
+.field-wrap input {
+  width: 100%;
+  padding: 12px 44px 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color .2s;
+  outline: none;
+}
+.field-wrap input:focus { border-color: var(--accent); }
+.eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text3); font-size: 18px; padding: 0; line-height: 1; }
+.error-msg { font-size: 12px; color: #C0392B; margin-bottom: 10px; min-height: 16px; }
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .2s;
+  margin-bottom: 1rem;
+}
+.btn-primary:hover { background: var(--accent-dark); }
+.key-hint { font-size: 12px; color: var(--text3); line-height: 1.6; }
+.key-hint a { color: var(--accent); }
+
+/* Home */
+.start-strip {
+  background: var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.start-strip:hover { background: var(--accent-dark); }
+.start-strip h2 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 300;
+  color: #fff;
+}
+.start-strip p { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.start-arrow { font-size: 28px; color: rgba(255,255,255,0.6); }
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 2rem;
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.testament-row {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  padding: 10px 0 4px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.book-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.book-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.book-card .bnum { font-size: 10px; color: var(--text3); display: block; margin-bottom: 2px; }
+.book-card .bname { font-size: 13px; color: var(--text); display: block; font-weight: 500; }
+.book-card .bgen {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 4px;
+  display: block;
+}
+.book-card .bdone { font-size: 10px; color: var(--accent); margin-top: 2px; display: block; font-weight: 500; }
+.book-card.has-done { border-color: var(--accent); background: var(--accent-light); }
+
+.key-status {
+  font-size: 12px;
+  color: var(--text3);
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.key-status a { color: var(--accent); cursor: pointer; }
+
+/* Chapter select */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text3);
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--sans);
+  transition: color .15s;
+}
+.back-btn:hover { color: var(--text); }
+.page-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+.page-meta { font-size: 13px; color: var(--text3); margin-bottom: 1.5rem; }
+
+.genre-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+}
+.genre-narrative { background: #E8F0FB; color: #2A4E8A; }
+.genre-law { background: #FBE8E8; color: #8A2A2A; }
+.genre-poetry { background: #F5EDD8; color: #7A5A1A; }
+.genre-prophecy { background: #EDE8FB; color: #4A2A8A; }
+.genre-doctrine { background: #E8FBF0; color: #1A6A3A; }
+
+.chap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+.chap-btn {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 4px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+  text-align: center;
+  background: var(--surface);
+  transition: all .12s;
+  font-weight: 400;
+}
+.chap-btn:hover { border-color: var(--accent); color: var(--accent); }
+.chap-btn.done { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); font-weight: 500; }
+
+/* Game */
+.score-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.score-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.score-track { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.score-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .5s ease; }
+.score-counts { font-size: 11px; color: var(--text3); white-space: nowrap; }
+
+.narrative-block {
+  background: var(--surface);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.85;
+  color: var(--text);
+  font-weight: 300;
+}
+
+.mechanic-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--surface2);
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.question-text {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+.choice-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px 18px;
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  width: 100%;
+}
+.choice-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  transform: translateX(3px);
+}
+.choice-btn:disabled { cursor: default; }
+.choice-btn.canonical {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+.choice-btn.human {
+  background: var(--warm-light);
+  border-color: var(--warm);
+  color: var(--warm-dark);
+}
+.choice-btn.faded { opacity: 0.35; transform: none !important; }
+
+.reflection-box {
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 1.5rem;
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.7;
+  font-style: italic;
+  display: none;
+}
+.reflection-box.canonical { background: var(--accent-light); color: var(--accent-dark); border-left: 3px solid var(--accent); }
+.reflection-box.human { background: var(--warm-light); color: var(--warm-dark); border-left: 3px solid var(--warm); }
+
+.nav-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.nav-btn {
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 400;
+}
+.nav-btn:hover { border-color: var(--text2); }
+.nav-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 500; }
+.nav-btn.primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+
+.loading-wrap {
+  text-align: center;
+  padding: 3rem 0;
+}
+.loading-icon {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--text3);
+  font-style: italic;
+}
+
+.error-card {
+  background: #FBE8E8;
+  border: 1px solid #E0C0C0;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  font-size: 14px;
+  color: #7A2A2A;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* Timer */
+.timer-bar {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  height: 18px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+.timer-fill {
+  background: var(--gold);
+  height: 100%;
+  width: 100%;
+  transition: width 1s linear, background-color 0.3s;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.timer-text {
+  position: relative;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: bold;
+  margin: 0 auto;
+  color: var(--text);
+  mix-blend-mode: difference;
+}
+.timer-critical {
+  background: #C0392B !important;
+  animation: pulse-red 0.5s infinite alternate;
+}
+@keyframes pulse-red {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+/* Animations and transitions */
+.screen {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+}
+.screen.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Particles */
+.particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 20px;
+  z-index: 100;
+  animation: floatUp 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+@keyframes floatUp {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Glow effects for choice feedback */
+.choice-btn.canonical {
+  background: var(--accent-light) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-dark) !important;
+  box-shadow: 0 0 15px rgba(61, 107, 79, 0.4);
+  animation: popScale 0.3s ease-out;
+}
+.choice-btn.human {
+  background: var(--warm-light) !important;
+  border-color: var(--warm) !important;
+  color: var(--warm-dark) !important;
+  box-shadow: 0 0 15px rgba(139, 94, 60, 0.4);
+  animation: popScale 0.3s ease-out;
+}
+@keyframes popScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* App Logo */
+.app-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2.5px solid var(--gold);
+  display: block;
+  margin: 0 auto 1.5rem auto;
+  box-shadow: 0 0 20px rgba(197, 160, 89, 0.3);
+  object-fit: cover;
+}
+
+/* Audio Toggle Button */
+.audio-toggle {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text3);
+  padding: 0.25rem 0.5rem;
+  transition: color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+}
+.audio-toggle:hover {
+  color: var(--gold);
+  transform: scale(1.1);
+}
+
+/* Reading Aura button */
+.read-more-aura {
+  background: radial-gradient(circle, rgba(197,160,89,0.1) 0%, rgba(0,0,0,0) 75%);
+  border: 1px solid var(--border);
+  color: var(--gold);
+  text-align: center;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin: 2rem auto 1rem auto;
+  max-width: 320px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  animation: aura-glow 2.5s infinite alternate;
+}
+.read-more-aura:hover {
+  background: radial-gradient(circle, rgba(197,160,89,0.2) 0%, rgba(0,0,0,0) 75%);
+  border-color: var(--gold);
+  transform: scale(1.03);
+}
+@keyframes aura-glow {
+  from { box-shadow: 0 0 8px rgba(197,160,89,0.1); }
+  to { box-shadow: 0 0 16px rgba(197,160,89,0.25); border-color: rgba(197,160,89,0.5); }
+}
+
+/* Update Modal */
+.update-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.update-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.update-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Info Tip Box */
+.app-info-tip {
+  background: var(--surface2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-top: 1.5rem;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="game-header">
+    <div class="game-logo" onclick="handleLogoClick()" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+      <img src="logo.jpg" style="width:28px; height:28px; border-radius:50%; border:1px solid var(--gold);" alt="Logo">
+      BibliGame
+    </div>
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <div id="header-score" style="font-size:12px;color:var(--text3)"></div>
+      <button class="audio-toggle" id="audio-toggle-btn" onclick="AmbientMusic.toggleMute()">🔊</button>
+    </div>
+  </div>
+
+  <!-- SCHERMATA CHIAVE API -->
+  <div id="s-key" class="screen active">
+    <div class="key-card">
+      <img src="logo.jpg" class="app-logo" alt="BibliGame Logo">
+      <h1>BibliGame</h1>
+      <p class="subtitle" style="margin-top: 0.5rem;">Un viaggio interattivo attraverso tutti i 66 libri della Bibbia. Ogni capitolo diventa una scelta, ogni scelta racconta di te.</p>
+      <div class="field-wrap">
+        <input type="password" id="api-input" placeholder="Incolla la tua chiave Groq (gsk_...) o Gemini (AIza...)">
+        <button class="eye" onclick="toggleEye()">👁</button>
+      </div>
+      <div class="error-msg" id="key-err"></div>
+      <button class="btn-primary" onclick="saveKey()">Inizia il cammino →</button>
+      <p class="key-hint">Ottieni una chiave su <a href="https://console.groq.com/keys" target="_blank">Groq Console</a> o <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a></p>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="s-home" class="screen">
+    <!-- PROFILO UNITARIO FUSO -->
+    <div id="fused-profile-container" style="display: none; margin-bottom: 2rem;"></div>
+
+    <div class="start-strip" onclick="startFrom(0)">
+      <div>
+        <h2>Dalla Genesi</h2>
+        <p>Inizia dall'inizio, dalla creazione</p>
+      </div>
+      <div class="start-arrow">→</div>
+    </div>
+    <div class="section-label">Oppure scegli un libro</div>
+    <div class="book-grid" id="book-grid"></div>
+    <div class="key-status">Chiave: <span id="key-preview"></span> · <a onclick="changeKey()">Cambia</a></div>
+  </div>
+
+  <!-- CAPITOLI -->
+  <div id="s-chapters" class="screen">
+    <button class="back-btn" onclick="goHome()">← Libri</button>
+    <div class="page-title" id="c-title"></div>
+    <div class="page-meta" id="c-meta"></div>
+    <div id="c-genre-badge"></div>
+    <div class="chap-grid" id="chap-grid"></div>
+  </div>
+
+  <!-- GIOCO -->
+  <div id="s-game" class="screen">
+    <button class="back-btn" onclick="goChapters()">← Capitoli</button>
+    <div class="page-meta" id="g-meta"></div>
+    <div class="page-title" id="g-title" style="margin-bottom:1.25rem"></div>
+
+    <div class="score-bar">
+      <span class="score-label">Umano</span>
+      <div class="score-track"><div class="score-fill" id="score-fill" style="width:50%"></div></div>
+      <span class="score-label">Teologico</span>
+      <span class="score-counts" id="score-counts"></span>
+    </div>
+
+
+
+    <div id="g-body"></div>
+    <div id="g-reflection" class="reflection-box"></div>
+    <div class="nav-row" id="g-nav"></div>
+  </div>
+
+  <!-- PROFILO GIOCATORE -->
+  <div id="s-profile" class="screen">
+    <button class="back-btn" onclick="goHome()">← Menu Principale</button>
+    <div class="key-card" style="max-width: 580px; margin-top: 1rem;">
+      <h1 style="font-size: 32px; text-align: center; font-family: var(--serif); font-weight: 300;">Profilo del Cammino</h1>
+      <p class="subtitle" id="p-book-meta" style="text-align: center; margin-bottom: 1.5rem;"></p>
+      
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="font-size: 48px;" id="p-emoji">🧭</div>
+        <h2 id="p-name" style="font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--accent); margin: 0.5rem 0;"></h2>
+        <div class="genre-badge" id="p-stat-badge" style="background: var(--warm-light); color: var(--warm-dark);"></div>
+      </div>
+      
+      <p id="p-desc" style="font-family: var(--serif); font-size: 17px; line-height: 1.7; font-style: italic; color: var(--text); margin-bottom: 2rem; text-align: center;"></p>
+      
+      <div style="background: var(--surface2); padding: 1.25rem; border-radius: var(--radius); margin-bottom: 1.5rem;">
+        <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 0.75rem; text-align: center;">Statistiche del Libro</h3>
+        <div style="display: flex; justify-content: space-around; font-size: 14px;">
+          <div><strong>Scelte Teologiche:</strong> <span id="p-canonical-count"></span></div>
+          <div><strong>Scelte Umane:</strong> <span id="p-human-count"></span></div>
+        </div>
+      </div>
+      
+      <!-- DIARIO DEL CAMMINO -->
+      <div style="background: var(--surface2); padding: 1.25rem; border-radius: var(--radius); margin-bottom: 2rem; max-height: 250px; overflow-y: auto; text-align: left;">
+        <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 0.75rem; text-align: center;">Il Diario del tuo Cammino</h3>
+        <div id="p-diary" style="font-size: 14px; line-height: 1.6; color: var(--text);"></div>
+      </div>
+      
+      <button class="btn-primary" onclick="goHome()">Continua il Cammino</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BOOKS=[
+  {t:"AT",list:[
+    {n:"Genesi",a:"Gen",c:50,g:"narrative"},{n:"Esodo",a:"Es",c:40,g:"narrative"},
+    {n:"Levitico",a:"Lv",c:27,g:"law"},{n:"Numeri",a:"Nm",c:36,g:"narrative"},
+    {n:"Deuteronomio",a:"Dt",c:34,g:"law"},{n:"Giosuè",a:"Gs",c:24,g:"narrative"},
+    {n:"Giudici",a:"Gdc",c:21,g:"narrative"},{n:"Rut",a:"Rt",c:4,g:"narrative"},
+    {n:"1 Samuele",a:"1Sam",c:31,g:"narrative"},{n:"2 Samuele",a:"2Sam",c:24,g:"narrative"},
+    {n:"1 Re",a:"1Re",c:22,g:"narrative"},{n:"2 Re",a:"2Re",c:25,g:"narrative"},
+    {n:"1 Cronache",a:"1Cr",c:29,g:"narrative"},{n:"2 Cronache",a:"2Cr",c:36,g:"narrative"},
+    {n:"Esdra",a:"Esd",c:10,g:"narrative"},{n:"Neemia",a:"Ne",c:13,g:"narrative"},
+    {n:"Ester",a:"Est",c:10,g:"narrative"},{n:"Giobbe",a:"Gb",c:42,g:"poetry"},
+    {n:"Salmi",a:"Sal",c:150,g:"poetry"},{n:"Proverbi",a:"Pr",c:31,g:"poetry"},
+    {n:"Ecclesiaste",a:"Qo",c:12,g:"poetry"},{n:"Cantico dei Cantici",a:"Ct",c:8,g:"poetry"},
+    {n:"Isaia",a:"Is",c:66,g:"prophecy"},{n:"Geremia",a:"Ger",c:52,g:"prophecy"},
+    {n:"Lamentazioni",a:"Lam",c:5,g:"poetry"},{n:"Ezechiele",a:"Ez",c:48,g:"prophecy"},
+    {n:"Daniele",a:"Dn",c:12,g:"prophecy"},{n:"Osea",a:"Os",c:14,g:"prophecy"},
+    {n:"Gioele",a:"Gl",c:3,g:"prophecy"},{n:"Amos",a:"Am",c:9,g:"prophecy"},
+    {n:"Abdia",a:"Abd",c:1,g:"prophecy"},{n:"Giona",a:"Gn",c:4,g:"narrative"},
+    {n:"Michea",a:"Mi",c:7,g:"prophecy"},{n:"Naum",a:"Na",c:3,g:"prophecy"},
+    {n:"Abacuc",a:"Abc",c:3,g:"prophecy"},{n:"Sofonia",a:"Sof",c:3,g:"prophecy"},
+    {n:"Aggeo",a:"Agg",c:2,g:"prophecy"},{n:"Zaccaria",a:"Zc",c:14,g:"prophecy"},
+    {n:"Malachia",a:"Ml",c:4,g:"prophecy"}
+  ]},
+  {t:"NT",list:[
+    {n:"Matteo",a:"Mt",c:28,g:"narrative"},{n:"Marco",a:"Mc",c:16,g:"narrative"},
+    {n:"Luca",a:"Lc",c:24,g:"narrative"},{n:"Giovanni",a:"Gv",c:21,g:"narrative"},
+    {n:"Atti degli Apostoli",a:"At",c:28,g:"narrative"},{n:"Romani",a:"Rm",c:16,g:"doctrine"},
+    {n:"1 Corinzi",a:"1Cor",c:16,g:"doctrine"},{n:"2 Corinzi",a:"2Cor",c:13,g:"doctrine"},
+    {n:"Galati",a:"Gal",c:6,g:"doctrine"},{n:"Efesini",a:"Ef",c:6,g:"doctrine"},
+    {n:"Filippesi",a:"Fil",c:4,g:"doctrine"},{n:"Colossesi",a:"Col",c:4,g:"doctrine"},
+    {n:"1 Tessalonicesi",a:"1Ts",c:5,g:"doctrine"},{n:"2 Tessalonicesi",a:"2Ts",c:3,g:"doctrine"},
+    {n:"1 Timoteo",a:"1Tm",c:6,g:"doctrine"},{n:"2 Timoteo",a:"2Tm",c:4,g:"doctrine"},
+    {n:"Tito",a:"Tt",c:3,g:"doctrine"},{n:"Filemone",a:"Flm",c:1,g:"doctrine"},
+    {n:"Ebrei",a:"Eb",c:13,g:"doctrine"},{n:"Giacomo",a:"Gc",c:5,g:"doctrine"},
+    {n:"1 Pietro",a:"1Pt",c:5,g:"doctrine"},{n:"2 Pietro",a:"2Pt",c:3,g:"doctrine"},
+    {n:"1 Giovanni",a:"1Gv",c:5,g:"doctrine"},{n:"2 Giovanni",a:"2Gv",c:1,g:"doctrine"},
+    {n:"3 Giovanni",a:"3Gv",c:1,g:"doctrine"},{n:"Giuda",a:"Gd",c:1,g:"doctrine"},
+    {n:"Apocalisse",a:"Ap",c:22,g:"prophecy"}
+  ]}
+];
+
+let allBooks=[];
+BOOKS.forEach(g=>g.list.forEach(b=>allBooks.push({...b,testament:g.t})));
+
+const GENRE_LABELS={narrative:"Narrativo",law:"Legge",poetry:"Poesia",prophecy:"Profezia",doctrine:"Dottrina"};
+const GENRE_PROMPTS={
+  narrative:"Racconta in modo immersivo il contenuto del capitolo (2-3 frasi, stile letterario evocativo). Il giocatore si trova dentro la storia. Proponi una scelta d'azione concreta.",
+  law:"Presenta la legge o il precetto centrale del capitolo (1-2 frasi semplici). Chiedi al giocatore 'Tu lo faresti?' con opzioni ancorate alla vita quotidiana concreta.",
+  poetry:"Evoca liberamente lo spirito del capitolo poetico (1-2 frasi liriche, senza citare versetti letterali). Poi proponi di completare una frase poetica ispirata al testo.",
+  prophecy:"Presenta il tema profetico del capitolo in modo narrativo (2 frasi). Poi invita il giocatore a intuire dove va la profezia prima di rivelarla.",
+  doctrine:"Riassumi il principio dottrinale centrale del capitolo (1-2 frasi chiare). Proponi: quale di queste affermazioni senti più tua?"
+};
+
+let S={key:'',bookIdx:0,chapter:1,canonical:0,human:0,total:0,completed:{},answered:false,currentData:null};
+
+// Web Audio API Synth for Bibbia Game
+const AudioSynth = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+  playTone(freq, type, duration, gainStart) {
+    try {
+      this.init();
+      const osc = this.ctx.createOscillator();
+      const gainNode = this.ctx.createGain();
+      
+      osc.type = type;
+      osc.frequency.value = freq;
+      
+      gainNode.gain.setValueAtTime(gainStart, this.ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+      
+      osc.connect(gainNode);
+      gainNode.connect(this.ctx.destination);
+      
+      osc.start();
+      osc.stop(this.ctx.currentTime + duration);
+    } catch(e) {
+      console.log("Audio context not supported or loaded yet", e);
+    }
+  },
+  playCanonical() {
+    this.playTone(523.25, 'sine', 0.25, 0.15);
+    setTimeout(() => this.playTone(659.25, 'sine', 0.25, 0.15), 120);
+    setTimeout(() => this.playTone(783.99, 'sine', 0.25, 0.15), 240);
+    setTimeout(() => this.playTone(1046.50, 'sine', 0.5, 0.15), 360);
+  },
+  playHuman() {
+    this.playTone(196.00, 'triangle', 0.4, 0.3);
+    setTimeout(() => this.playTone(261.63, 'triangle', 0.5, 0.3), 150);
+  },
+  playProceed() {
+    this.playTone(392.00, 'sine', 0.4, 0.15);
+    setTimeout(() => this.playTone(523.25, 'sine', 0.4, 0.15), 150);
+    setTimeout(() => this.playTone(659.25, 'sine', 0.6, 0.15), 300);
+  },
+  playTick() {
+    this.playTone(800, 'sine', 0.05, 0.05);
+  },
+  playTimeUp() {
+    this.playTone(220, 'sawtooth', 0.2, 0.2);
+    setTimeout(() => {
+      this.playTone(220, 'sawtooth', 0.4, 0.2);
+    }, 250);
+  },
+  waitingInterval: null,
+  startWaiting() {
+    this.stopWaiting();
+    let count = 0;
+    this.waitingInterval = setInterval(() => {
+      this.playTone(110 + (count % 3) * 20, 'sine', 0.4, 0.08);
+      count++;
+    }, 1200);
+  },
+  stopWaiting() {
+    if (this.waitingInterval) {
+      clearInterval(this.waitingInterval);
+      this.waitingInterval = null;
+    }
+  }
+};
+
+// Meditative background ambient music
+const AmbientMusic = {
+  ctx: null,
+  nodes: [],
+  isPlaying: false,
+  isMuted: false,
+  timerId: null,
+  progressionIntervalId: null,
+  currentProgressionIdx: 0,
+  
+  // Progressions representing different moods
+  progressions: [
+    // Progression 1 (Meditativa/Profonda): Cmaj7 - Am7 - Fmaj7 - G7
+    [
+      [261.63, 329.63, 392.00, 493.88], // Cmaj7
+      [220.00, 261.63, 329.63, 392.00], // Am7
+      [174.61, 261.63, 349.23, 440.00], // Fmaj7
+      [196.00, 246.94, 293.66, 392.00]  // G7
+    ],
+    // Progression 2 (Luminosa/Solare): Gmaj7 - Cadd9 - Dsus4 - Em7
+    [
+      [196.00, 246.94, 293.66, 381.99], // Gmaj7
+      [261.63, 329.63, 392.00, 523.25], // Cadd9
+      [293.66, 369.99, 440.00, 587.33], // Dsus4
+      [164.81, 220.00, 329.63, 392.00]  // Em7
+    ],
+    // Progression 3 (Mistica/Rilassante): Am9 - Fmaj7 - Dm9 - E7sus4
+    [
+      [220.00, 261.63, 329.63, 493.88], // Am9
+      [174.61, 261.63, 349.23, 440.00], // Fmaj7
+      [146.83, 220.00, 293.66, 440.00], // Dm9
+      [164.81, 246.94, 329.63, 440.00]  // E7sus4
+    ],
+    // Progression 4 (Solenne/Pace): Dmaj7 - Gmaj7 - Bm7 - A6
+    [
+      [293.66, 369.99, 440.00, 554.37], // Dmaj7
+      [196.00, 246.94, 293.66, 381.99], // Gmaj7
+      [246.94, 293.66, 369.99, 493.88], // Bm7
+      [220.00, 277.18, 329.63, 440.00]  // A6
+    ]
+  ],
+  
+  init() {
+    if (this.ctx) return;
+    this.ctx = AudioSynth.ctx || new (window.AudioContext || window.webkitAudioContext)();
+  },
+  start() {
+    this.init();
+    if (this.isPlaying || this.isMuted) return;
+    this.isPlaying = true;
+    this.loop();
+    
+    // Change progression every 5 minutes (300000 ms)
+    this.progressionIntervalId = setInterval(() => {
+      this.currentProgressionIdx = (this.currentProgressionIdx + 1) % this.progressions.length;
+      console.log("Ambient music progression changed to: " + this.currentProgressionIdx);
+    }, 300000);
+  },
+  stop() {
+    this.isPlaying = false;
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+    if (this.progressionIntervalId) {
+      clearInterval(this.progressionIntervalId);
+      this.progressionIntervalId = null;
+    }
+    this.nodes.forEach(n => { try { n.stop(); } catch(e){} });
+    this.nodes = [];
+  },
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    const btn = document.getElementById('audio-toggle-btn');
+    if (this.isMuted) {
+      this.stop();
+      if (btn) btn.textContent = '🔇';
+    } else {
+      if (btn) btn.textContent = '🔊';
+      this.start();
+    }
+  },
+  loop() {
+    if (!this.isPlaying || this.isMuted) return;
+    
+    let chordIdx = 0;
+    const playChord = () => {
+      if (!this.isPlaying || this.isMuted) return;
+      
+      try {
+        const now = this.ctx.currentTime;
+        const currentProgression = this.progressions[this.currentProgressionIdx];
+        const freqs = currentProgression[chordIdx];
+        
+        freqs.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          
+          gain.gain.setValueAtTime(0, now + i * 0.2);
+          gain.gain.linearRampToValueAtTime(0.02, now + i * 0.2 + 1.5);
+          gain.gain.setValueAtTime(0.02, now + 5.0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 7.5);
+          
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          
+          osc.start(now + i * 0.2);
+          osc.stop(now + 8.0);
+          
+          this.nodes.push(osc);
+        });
+        
+        chordIdx = (chordIdx + 1) % currentProgression.length;
+        this.timerId = setTimeout(playChord, 8000);
+      } catch (e) {
+        console.log("Error in ambient loop:", e);
+      }
+    };
+    
+    playChord();
+  }
+};
+
+// Progress save/load functions
+function saveProgress() {
+  localStorage.setItem('bibligame_completed', JSON.stringify(S.completed));
+  localStorage.setItem('bibligame_canonical', S.canonical);
+  localStorage.setItem('bibligame_human', S.human);
+  localStorage.setItem('bibligame_total', S.total);
+}
+
+function loadProgress() {
+  const comp = localStorage.getItem('bibligame_completed');
+  if (comp) S.completed = JSON.parse(comp);
+  S.canonical = parseInt(localStorage.getItem('bibligame_canonical')) || 0;
+  S.human = parseInt(localStorage.getItem('bibligame_human')) || 0;
+  S.total = parseInt(localStorage.getItem('bibligame_total')) || 0;
+}
+
+// Particles floating up
+function spawnParticles(x, y, emojis) {
+  const container = document.body;
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 40 + Math.random() * 80;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance - 50;
+    
+    p.style.setProperty('--dx', dx + 'px');
+    p.style.setProperty('--dy', dy + 'px');
+    
+    container.appendChild(p);
+    setTimeout(() => {
+      p.remove();
+    }, 1200);
+  }
+}
+
+// Timer configuration
+let timerInterval = null;
+function startTimer() {
+  stopTimer();
+  S.timeLeft = 30;
+  const fill = document.getElementById('timer-fill');
+  const txt = document.getElementById('timer-text');
+  fill.style.width = '100%';
+  fill.classList.remove('timer-critical');
+  txt.textContent = '30s';
+  
+  timerInterval = setInterval(() => {
+    S.timeLeft--;
+    fill.style.width = (S.timeLeft / 30 * 100) + '%';
+    txt.textContent = S.timeLeft + 's';
+    
+    if (S.timeLeft <= 10) {
+      fill.classList.add('timer-critical');
+      AudioSynth.playTick();
+    }
+    
+    if (S.timeLeft <= 0) {
+      stopTimer();
+      handleTimeUp();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function handleTimeUp() {
+  if (S.answered) return;
+  AudioSynth.playTimeUp();
+  const d = S.currentData;
+  if (!d) return;
+  
+  const humanIdx = d.choices.findIndex(ch => ch.type === 'human');
+  const idx = humanIdx !== -1 ? humanIdx : 0;
+  
+  pick(idx);
+  
+  const statusBanner = document.createElement('div');
+  statusBanner.className = 'app-info-tip';
+  statusBanner.style.color = '#C0392B';
+  statusBanner.style.borderColor = '#C0392B';
+  statusBanner.innerHTML = `<strong>⌛ TEMPO SCADUTO!</strong> L'IA ha preso la decisione per te. Continua il cammino.`;
+  document.getElementById('g-body').appendChild(statusBanner);
+}
+
+// Book-specific profiles database
+const BOOK_PROFILES = {
+  "1Gv": {
+    name: "1 Giovanni",
+    profiles: [
+      { min: 80, name: "Il Custode dell'Amore Divino", emoji: "🕊️", desc: "La tua lettura di 1 Giovanni rivela una profonda sintonia con l'amore mistico e assoluto di Dio. Privilegi la fede pura, la verità dottrinale e la certezza spirituale, vedendo nell'amore di Dio la prima e ultima verità." },
+      { min: 40, name: "L'Apostolo della Fratellanza", emoji: "🤝", desc: "Hai vissuto 1 Giovanni unendo l'ideale divino con la realtà umana. Per te, l'amore verso Dio si realizza concretamente nella cura e nella fratellanza verso il prossimo, equilibrando dottrina e vicinanza fraterna." },
+      { min: 0, name: "Il Pragmatico della Carità", emoji: "🕯️", desc: "Hai affrontato 1 Giovanni con uno spirito pratico e orientato all'azione terrena. Credi che l'amore sia soprattutto un fatto concreto di aiuto reciproco e di compassione umana, diffidando dei misticismi astratti." }
+    ]
+  },
+  "Gen": {
+    name: "Genesi",
+    profiles: [
+      { min: 80, name: "Il Custode del Giardino", emoji: "🌳", desc: "In Genesi hai cercato sempre la volontà creatrice e l'ordine ordinato da Dio. Privilegi l'alleanza divina, l'obbedienza sacra e la sottomissione al disegno provvidenziale." },
+      { min: 40, name: "Il Patriarca Viandante", emoji: "👣", desc: "Hai camminato tra le fatiche umane e le promesse divine. Comprendi la necessità della fede, ma affronti le debolezze e i compromessi delle relazioni umane con saggezza e realismo." },
+      { min: 0, name: "Il Costruttore di Babele", emoji: "🧱", desc: "Hai focalizzato il tuo viaggio in Genesi sull'ingegno e la sopravvivenza umana. Metti al primo posto la libertà, i bisogni pratici delle persone e la risoluzione concreta dei conflitti terreni." }
+    ]
+  },
+  "Ap": {
+    name: "Apocalisse",
+    profiles: [
+      { min: 80, name: "Il Visionario del Trono", emoji: "👑", desc: "In Apocalisse ti sei concentrato sulla vittoria divina finale, la Nuova Gerusalemme e il trionfo dell'Agnello. Vivi la storia in una prospettiva eterna ed escatologica." },
+      { min: 40, name: "Il Testimone Fedele", emoji: "🕯️", desc: "Hai vissuto le rivelazioni dell'Apocalisse con serietà ma anche con grande attenzione alle sofferenze delle comunità umane. Cerchi la giustizia divina senza perdere l'empatia terrena." },
+      { min: 0, name: "Il Custode della Terra", emoji: "🛡️", desc: "Di fronte alle visioni cosmiche, hai privilegiato la difesa della vita terrena e il conforto delle persone spaventate. Per te la speranza si costruisce salvaguardando l'umanità qui e ora." }
+    ]
+  }
+};
+
+// Player Profile screen
+function showProfile() {
+  const b = allBooks[S.bookIdx];
+  const completedKeys = Object.keys(S.completed).filter(k => k.startsWith(b.a + '-'));
+  const totalCompleted = completedKeys.length;
+  
+  if (totalCompleted === 0) {
+    goHome();
+    return;
+  }
+  
+  let canonicalCount = 0;
+  let humanCount = 0;
+  completedKeys.forEach(k => {
+    if (S.completed[k] === 'canonical') canonicalCount++;
+    else humanCount++;
+  });
+  
+  const pct = Math.round((canonicalCount / totalCompleted) * 100);
+  
+  let pName = "";
+  let pDesc = "";
+  let pEmoji = "🧭";
+  
+  // Try book-specific profile
+  const bookProf = BOOK_PROFILES[b.a];
+  if (bookProf) {
+    const matched = bookProf.profiles.find(p => pct >= p.min);
+    if (matched) {
+      pName = matched.name;
+      pEmoji = matched.emoji;
+      pDesc = matched.desc;
+    }
+  }
+  
+  // Fallback generic profiles
+  if (!pName) {
+    if (pct >= 80) {
+      pName = "Il Mistico Teologo";
+      pEmoji = "🕊️";
+      pDesc = "Il tuo cammino è guidato da una fede profonda e da una rigorosa fedeltà al messaggio teologico. Preferisci la via del divino, le verità rivelate e il compimento delle Scritture alle risposte pragmatiche o terrene.";
+    } else if (pct >= 60) {
+      pName = "Il Pellegrino Equilibrato";
+      pEmoji = "👣";
+      pDesc = "Cammini in equilibrio tra cielo e terra. Cerchi di incarnare i precetti teologici, ma mantieni uno sguardo attento, compassionevole e realistico sulle fragilità e i bisogni quotidiani dell'esperienza umana.";
+    } else if (pct >= 40) {
+      pName = "Il Cercatore Saggio";
+      pEmoji = "🕯️";
+      pDesc = "Ti trovi esattamente al crocevia tra il sacro e il profano. Riconosci la profondità della teologia ma attribuisci pari dignità al sentimento e alle relazioni terrene. Sei un mediatore per natura.";
+    } else if (pct >= 20) {
+      pName = "L'Umanista Filosofo";
+      pEmoji = "✍️";
+      pDesc = "Privilegi l'empatia, l'azione pratica e le relazioni umane. Credi che il divino si riveli soprattutto nell'amore concreto per il prossimo, nella solidarietà e nella comprensione delle difficoltà della vita.";
+    } else {
+      pName = "L'Esploratore Terreno";
+      pEmoji = "🪵";
+      pDesc = "Il tuo sguardo è fortemente ancorato alla realtà materiale e alla concretezza del buon senso. Diffidi delle astrazioni dottrinali e rispondi con pragmatismo e attenzione alla salvaguardia dell'essere umano.";
+    }
+  }
+  
+  document.getElementById('p-book-meta').textContent = `Libro completato: ${b.n} (${totalCompleted} capitoli)`;
+  document.getElementById('p-emoji').textContent = pEmoji;
+  document.getElementById('p-name').textContent = pName;
+  document.getElementById('p-stat-badge').textContent = `${pct}% Teologico · ${100 - pct}% Umano`;
+  document.getElementById('p-canonical-count').textContent = canonicalCount;
+  document.getElementById('p-human-count').textContent = humanCount;
+  
+  // Render Diary
+  const diaryDiv = document.getElementById('p-diary');
+  let diaryHtml = '';
+  if (S.sessionHistory && S.sessionHistory.length > 0) {
+    S.sessionHistory.forEach(h => {
+      const typeLabel = h.type === 'canonical' ? '<span style="color:var(--accent); font-weight:bold;">Teologica</span>' : '<span style="color:var(--warm); font-weight:bold;">Umana</span>';
+      diaryHtml += `
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+          <strong>Capitolo ${h.chapter}</strong> · Scelta: <em>"${h.choiceText}"</em> (${typeLabel})<br>
+          <span style="color:var(--text2); font-style:italic; font-size:13px; display:block; margin-top:0.25rem;">${h.reflection}</span>
+        </div>`;
+    });
+  } else {
+    diaryHtml = '<div style="text-align:center; color:var(--text3)">Nessuna scelta registrata in questa sessione.</div>';
+  }
+  diaryDiv.innerHTML = diaryHtml;
+  
+  show('s-profile');
+}
+
+function show(id){
+  const screens = document.querySelectorAll('.screen');
+  screens.forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const activeScreen = document.getElementById(id);
+  activeScreen.style.display = 'block';
+  activeScreen.offsetHeight;
+  activeScreen.classList.add('active');
+  
+  AudioSynth.init();
+  AmbientMusic.start();
+}
+function goHome(){
+  stopTimer();
+  AudioSynth.stopWaiting();
+  renderHome();
+  show('s-home');
+}
+function goChapters(){
+  stopTimer();
+  AudioSynth.stopWaiting();
+  openBook(S.bookIdx);
+}
+
+function toggleEye(){
+  const i=document.getElementById('api-input');
+  i.type=i.type==='password'?'text':'password';
+}
+
+function saveKey(){
+  const k=document.getElementById('api-input').value.trim();
+  const err=document.getElementById('key-err');
+  if(!k){err.textContent='Inserisci la chiave API.';return}
+  if(!k.startsWith('gsk_')&&!k.startsWith('AIza')){err.textContent='La chiave sembra non valida.';return}
+  S.key=k;
+  localStorage.setItem('bibligame_api_key', k);
+  err.textContent='';
+  document.getElementById('key-preview').textContent=k.slice(0,10)+'...';
+  renderHome();
+  show('s-home');
+}
+function changeKey(){show('s-key')}
+
+function renderHome(){
+  const grid=document.getElementById('book-grid');
+  let html='';
+  
+  // Calculate completed books count
+  let completedBooksCount = 0;
+  BOOKS.forEach(group=>{
+    group.list.forEach(b=>{
+      const doneCount=Object.keys(S.completed).filter(k=>k.startsWith(b.a+'-')).length;
+      if (doneCount === b.c) {
+        completedBooksCount++;
+      }
+    });
+  });
+  
+  // Fused Profile rendering if at least 1 book is completed or some choices are made
+  const fusedContainer = document.getElementById('fused-profile-container');
+  if (S.total >= 5 && completedBooksCount >= 1) {
+    const globalPct = Math.round((S.canonical / S.total) * 100);
+    let globalName = "";
+    let globalDesc = "";
+    let globalEmoji = "🧭";
+    if (globalPct >= 75) {
+      globalName = "Fede e Intelletto";
+      globalEmoji = "🕊️";
+      globalDesc = "Il tuo cammino mostra una solida coerenza spirituale. Sei attratto dalla profondità teologica e alla verità delle Scritture. Unisci la sapienza e la meditazione con un cammino devoto.";
+    } else if (globalPct >= 45) {
+      globalName = "Equilibrio e Sapienza";
+      globalEmoji = "🕯️";
+      globalDesc = "Il tuo viaggio mostra equilibrio dinamico. Riconosci la guida spirituale ma rispondi con empatia terrena di fronte alle difficoltà della vita. Un cammino integrato tra cielo e terra.";
+    } else {
+      globalName = "Azione e Compassione";
+      globalEmoji = "🤝";
+      globalDesc = "La coerenza delle tue scelte mostra una vocazione all'amore fraterno, al servizio pratico e alla vicinanza umana. Credi che la fede si manifesti soprattutto nelle azioni concrete.";
+    }
+    
+    // Grow dynamically based on completed books count
+    if (completedBooksCount >= 2) {
+      globalDesc += " <br><br>Il tuo progresso attraverso molteplici libri biblici testimonia costanza ed impegno nel comprendere a fondo il testo sacro. Stai sviluppando una visione matura e bilanciata della Parola.";
+    }
+    if (completedBooksCount >= 5) {
+      globalDesc += " Con ben cinque o più libri completati, il tuo cammino mostra una profonda coerenza d'anima. Sei in grado di unire contesti diversi, cogliendo i fili conduttori della rivelazione biblica con saggezza.";
+    }
+    
+    fusedContainer.innerHTML = `
+      <div class="key-card" style="margin-top: 0; padding: 1.5rem; text-align: center; border-color: var(--gold);">
+        <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold); margin-bottom: 0.5rem;">Il Tuo Profilo del Cammino Biblico</h3>
+        <div style="font-size: 32px; margin-bottom: 0.25rem;">${globalEmoji}</div>
+        <h4 style="font-family: var(--serif); font-size: 18px; color: var(--text); margin-bottom: 0.5rem;">${globalName}</h4>
+        <p style="font-size: 13px; color: var(--text2); line-height: 1.5; font-style: italic; margin-bottom: 0;">${globalDesc}</p>
+        <div style="font-size: 11px; color: var(--text3); margin-top: 0.75rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
+          Punteggio globale: ${S.canonical} Scelte Teologiche / ${S.human} Scelte Umane (${completedBooksCount} libri completati)
+        </div>
+      </div>
+    `;
+    fusedContainer.style.display = 'block';
+  } else {
+    fusedContainer.style.display = 'none';
+  }
+
+  BOOKS.forEach(group=>{
+    html+=`<div class="testament-row">${group.t==='AT'?'Antico Testamento':'Nuovo Testamento'}</div>`;
+    group.list.forEach(b=>{
+      const idx=allBooks.findIndex(x=>x.a===b.a);
+      const doneCount=Object.keys(S.completed).filter(k=>k.startsWith(b.a+'-')).length;
+      const hasDone=doneCount>0;
+      html+=`<div class="book-card${hasDone?' has-done':''}" onclick="openBook(${idx})">
+        <span class="bnum">${idx+1}</span>
+        <span class="bname">${b.n}</span>
+        <span class="bgen">${GENRE_LABELS[b.g]}</span>
+        ${hasDone?`<span class="bdone">✓ ${doneCount}/${b.c} cap.</span>`:''}
+      </div>`;
+    });
+  });
+  grid.innerHTML=html;
+  updateHeaderScore();
+}
+
+function updateHeaderScore(){
+  const el=document.getElementById('header-score');
+  if(S.total===0){el.textContent='';return}
+  const pct=Math.round((S.canonical/S.total)*100);
+  el.textContent=`${S.total} scelte · ${pct}% teologico`;
+}
+
+function startFrom(idx){S.bookIdx=idx;S.chapter=1;S.sessionHistory=[];loadChapter()}
+
+function openBook(idx){
+  S.bookIdx=idx;
+  const b=allBooks[idx];
+  document.getElementById('c-title').textContent=b.n;
+  document.getElementById('c-meta').textContent=`${b.testament} · ${b.c} capitoli`;
+  const badge=document.getElementById('c-genre-badge');
+  badge.innerHTML=`<span class="genre-badge genre-${b.g}" style="margin-bottom:1.25rem">${GENRE_LABELS[b.g]}</span>`;
+  
+  let doneCount = 0;
+  let html='';
+  for(let c=1;c<=b.c;c++){
+    const key=b.a+'-'+c;
+    const prevKey=b.a+'-'+(c-1);
+    const done=S.completed[key];
+    const prevDone=c===1 || S.completed[prevKey];
+    
+    if (done) doneCount++;
+    
+    if (prevDone) {
+      html+=`<button class="chap-btn${done?' done':''}" onclick="goToChapter(${idx},${c})">${c}</button>`;
+    } else {
+      html+=`<button class="chap-btn locked" disabled style="opacity: 0.45; cursor: not-allowed; background: var(--surface2); border: 1px dashed var(--border);">${c}🔒</button>`;
+    }
+  }
+  
+  // Show Profile or Reset Progress if completed or started
+  if (doneCount === b.c) {
+    html += `
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem;">
+        <button class="btn-primary" style="margin: 0; width: 100%;" onclick="showProfile()">Vedi Profilo Cammino 🏆</button>
+        <button class="nav-btn" style="margin: 0; width: 100%; font-size: 13px;" onclick="resetBookProgress(${idx})">🔄 Rigioca con Nuovi Testi</button>
+      </div>`;
+  } else if (doneCount > 0) {
+    html += `
+      <div style="width: 100%; display: flex; margin-top: 1.5rem;">
+        <button class="nav-btn" style="margin: 0; width: 100%; font-size: 13px;" onclick="resetBookProgress(${idx})">🔄 Ricomincia Libro</button>
+      </div>`;
+  }
+  
+  document.getElementById('chap-grid').innerHTML=html;
+  show('s-chapters');
+}
+
+function resetBookProgress(idx) {
+  if (confirm("Vuoi azzerare i progressi di questo libro per rigiocarlo con nuovi testi e domande?")) {
+    const b = allBooks[idx];
+    let canonicalReset = 0;
+    let humanReset = 0;
+    
+    // Clear chapters
+    for (let c = 1; c <= b.c; c++) {
+      const key = b.a + '-' + c;
+      const type = S.completed[key];
+      if (type) {
+        if (type === 'canonical') canonicalReset++;
+        else humanReset++;
+        delete S.completed[key];
+      }
+    }
+    
+    // Reset scores
+    S.canonical = Math.max(0, S.canonical - canonicalReset);
+    S.human = Math.max(0, S.human - humanReset);
+    S.total = Math.max(0, S.total - (canonicalReset + humanReset));
+    S.sessionHistory = [];
+    
+    saveProgress();
+    openBook(idx);
+  }
+}
+
+function goToChapter(idx,c){S.bookIdx=idx;S.chapter=c;loadChapter()}
+
+function updateScore(){
+  const pct=S.total===0?50:Math.round((S.canonical/S.total)*100);
+  document.getElementById('score-fill').style.width=pct+'%';
+  document.getElementById('score-counts').textContent=S.total>0?`${S.canonical}T / ${S.human}U`:'';
+  updateHeaderScore();
+}
+
+async function loadChapter(){
+  S.answered=false;
+  S.currentData=null;
+  stopTimer();
+  AudioSynth.startWaiting();
+  
+  const b=allBooks[S.bookIdx];
+  
+  const chapterKey = b.a + '-' + S.chapter;
+  const isReplay = S.completed[chapterKey] ? true : false;
+  const replayInstruction = isReplay ? "\n- NOTA DI REPLAY: Il giocatore sta rigiocando questo capitolo. Offri una prospettiva narrativa leggermente diversa o un focus differente sugli eventi dello stesso capitolo rispetto alla prima partita per rendere l'esperienza fresca ed esplorare sfumature diverse." : "";
+  
+  document.getElementById('g-meta').textContent=`${b.testament} · ${b.n}`;
+  document.getElementById('g-title').textContent=`Capitolo ${S.chapter}`;
+  document.getElementById('g-reflection').style.display='none';
+  document.getElementById('g-nav').innerHTML='';
+  updateScore();
+  show('s-game');
+
+  document.getElementById('g-body').innerHTML=`
+    <div class="loading-wrap">
+      <div class="loading-icon"></div>
+      <div class="loading-text">Aprendo ${b.n} ${S.chapter}…</div>
+    </div>`;
+
+  const prompt=`Sei il narratore di un gioco di avventura biblica in italiano.
+Libro: ${b.n} (${b.testament}) — Capitolo ${S.chapter} di ${b.c}${replayInstruction}
+Genere: ${GENRE_LABELS[b.g]}
+
+Istruzione: ${GENRE_PROMPTS[b.g]||GENRE_PROMPTS.narrative}
+
+REGOLE:
+- Lingua: italiano letterario, caldo, mai giudicante
+- A volte leggero e ironico sulla nostra umanità comune
+- 2 o 3 scelte: ESATTAMENTE UNA di tipo "canonical" (fedele al messaggio biblico), le altre "human" (comprensibili, terrene, mai pesantemente negative)
+- Riflessioni post-scelta sempre positive, mai punitive
+- Non citare versetti letterali. Racconta con parole tue
+- Sii fedele al contenuto reale del capitolo
+
+Rispondi SOLO con JSON valido:
+{
+  "narrative": "testo narrativo evocativo",
+  "mechanic": "etichetta breve (es: Scelta d'azione)",
+  "question": "domanda al giocatore",
+  "choices": [
+    {"text": "testo scelta", "type": "canonical", "reflection": "riflessione positiva"},
+    {"text": "testo scelta", "type": "human", "reflection": "riflessione, a volte ironica"}
+  ]
+}`;
+
+  try{
+    let apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+    let apiModel = 'llama-3.3-70b-versatile';
+    
+    if (S.key.startsWith('AIza')) {
+      apiUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/v1/chat/completions';
+      apiModel = 'gemini-2.5-flash';
+    }
+
+    const res=await fetch(apiUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.key},
+      body:JSON.stringify({
+        model:apiModel,
+        messages:[{role:'user',content:prompt}],
+        temperature:0.85,
+        max_tokens:2048
+      })
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error?.message||`Errore ${res.status}`);
+    const raw=data.choices?.[0]?.message?.content||'';
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const jsonStart=clean.indexOf('{');
+    const jsonEnd=clean.lastIndexOf('}');
+    if(jsonStart===-1||jsonEnd===-1)throw new Error('Risposta non valida dal modello. Riprova.');
+    const jsonStr=clean.slice(jsonStart,jsonEnd+1);
+    const parsed=JSON.parse(jsonStr);
+    S.currentData=parsed;
+    
+    AudioSynth.stopWaiting();
+    renderGame(parsed);
+  }catch(err){
+    AudioSynth.stopWaiting();
+    stopTimer();
+    let msg=err.message;
+    if(msg.includes('API_KEY_INVALID')||msg.includes('400'))msg='Chiave API non valida. Torna alla schermata iniziale e riprova.';
+    if(msg.includes('Failed to fetch'))msg='Errore di rete. Controlla la connessione internet e riprova.';
+    document.getElementById('g-body').innerHTML=`
+      <div class="error-card">${msg}</div>
+      <div class="nav-row">
+        <button class="nav-btn primary" onclick="loadChapter()">Riprova</button>
+        <button class="nav-btn" onclick="changeKey()">Cambia chiave</button>
+      </div>`;
+  }
+}
+
+// Embedded API key (obfuscated by reversing Base64). If empty, fallback to manual inputs.
+const EMBEDDED_KEY_B64 = "=EGUztGWlJDOGdGd0gkVTFnNLl2aV5GO3llRzIWekd0V1JTOIpVeOpEWZpkaMRDVEBjMDBzXrN3Z";
+
+
+
+function renderGame(d){
+  let html=`<div class="narrative-block">${d.narrative}`;
+  if (S.chapter === 1) {
+    html += `<div class="app-info-tip" style="margin-top: 1.5rem; border-style: solid; border-color: var(--gold); color: var(--gold);">💡 Alla fine di questo libro scoprirai il tuo Profilo del Cammino personalizzato in base alle tue risposte!</div>`;
+  }
+  html += `</div>`;
+  html+=`<div class="read-more-aura" id="read-more-btn" onclick="revealChoices(event)">Rifletti e Prosegui...</div>`;
+  html+=`<div id="choices-container" style="display:none; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease;">`;
+  
+  // Timer Bar inside choices container
+  html+=`
+    <div class="timer-bar" id="timer-bar-container" style="margin-bottom: 1.25rem;">
+      <div class="timer-fill" id="timer-fill" style="width: 100%"></div>
+      <div class="timer-text" id="timer-text">30s</div>
+    </div>`;
+    
+  html+=`<div class="mechanic-badge">${d.mechanic}</div>`;
+  html+=`<div class="question-text">${d.question}</div>`;
+  html+=`<div class="choices">`;
+  
+  // Keep original index map
+  const mapped = d.choices.map((ch, idx) => ({ ...ch, originalIdx: idx }));
+  // Shuffle them
+  const shuffled = [...mapped].sort(() => Math.random() - 0.5);
+  S.currentShuffledChoices = shuffled;
+  
+  shuffled.forEach((ch, i) => {
+    html+=`<button class="choice-btn" onclick="pickShuffled(${i}, event)" id="ch-${ch.originalIdx}">${ch.text}</button>`;
+  });
+  html+=`</div></div>`;
+  document.getElementById('g-body').innerHTML=html;
+  document.getElementById('g-reflection').style.display='none';
+  document.getElementById('timer-bar-container').style.display = 'none';
+}
+
+function revealChoices(event) {
+  const btn = document.getElementById('read-more-btn');
+  if (btn) btn.style.display = 'none';
+  
+  const container = document.getElementById('choices-container');
+  if (container) {
+    container.style.display = 'block';
+    container.offsetHeight; // force reflow
+    container.style.opacity = '1';
+    container.style.transform = 'translateY(0)';
+    
+    // Auto-scroll to choices smoothly
+    setTimeout(() => {
+      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+  
+  document.getElementById('timer-bar-container').style.display = 'flex';
+  startTimer();
+  AudioSynth.playProceed();
+}
+
+function pickShuffled(shuffledIdx, event) {
+  if (S.answered || !S.currentShuffledChoices) return;
+  const choiceObj = S.currentShuffledChoices[shuffledIdx];
+  pick(choiceObj.originalIdx, event);
+}
+
+function pick(idx, event){
+  if(S.answered||!S.currentData)return;
+  S.answered=true;
+  stopTimer();
+  
+  const d=S.currentData;
+  const ch=d.choices[idx];
+  const key=allBooks[S.bookIdx].a+'-'+S.chapter;
+  S.completed[key]=ch.type;
+  
+  // Track history for diary
+  if (!S.sessionHistory) S.sessionHistory = [];
+  S.sessionHistory.push({
+    chapter: S.chapter,
+    choiceText: ch.text,
+    reflection: ch.reflection,
+    type: ch.type
+  });
+  
+  if (ch.type === 'canonical') {
+    AudioSynth.playCanonical();
+    if (event && event.clientX) spawnParticles(event.clientX, event.clientY, ['✨', '🕊️', '📖']);
+  } else {
+    AudioSynth.playHuman();
+    if (event && event.clientX) spawnParticles(event.clientX, event.clientY, ['👣', '🪵', '🕯️', '🌱']);
+  }
+  
+  if(ch.type==='canonical')S.canonical++;else S.human++;
+  S.total++;
+  updateScore();
+  saveProgress();
+  
+  d.choices.forEach((_,i)=>{
+    const btn=document.getElementById('ch-'+i);
+    if(!btn)return;
+    btn.disabled=true;
+    if(i===idx)btn.classList.add(ch.type);
+    else btn.classList.add('faded');
+  });
+  // We do not display the reflection box now so players discover their profile at the end of the book!
+  const ref=document.getElementById('g-reflection');
+  if (ref) ref.style.display='none';
+  renderNav();
+}
+
+function renderNav(){
+  const b=allBooks[S.bookIdx];
+  let html='';
+  if(S.chapter<b.c){
+    html+=`<button class="nav-btn primary" onclick="goToChapter(${S.bookIdx},${S.chapter+1})">Capitolo ${S.chapter+1} →</button>`;
+  }
+  if(S.chapter===b.c){
+    html+=`<button class="nav-btn primary" onclick="showProfile()">Completa Libro e Vedi Profilo 🏆</button>`;
+  }
+  html+=`<button class="nav-btn" onclick="goChapters()">Capitoli</button>`;
+  html+=`<button class="nav-btn" onclick="goHome()">Libri</button>`;
+  document.getElementById('g-nav').innerHTML=html;
+}
+
+function changeKey(){
+  if (EMBEDDED_KEY_B64) {
+    alert("Questa applicazione usa una chiave integrata sicura.");
+    return;
+  }
+  show('s-key');
+}
+
+window.onload = function() {
+  loadProgress();
+  
+  if (EMBEDDED_KEY_B64) {
+    S.key = atob(EMBEDDED_KEY_B64.split("").reverse().join(""));
+    // Hide key status from Home screen
+    setTimeout(() => {
+      const statusEl = document.querySelector('.key-status');
+      if (statusEl) statusEl.style.display = 'none';
+    }, 100);
+    renderHome();
+    show('s-home');
+    return;
+  }
+  
+  const savedKey = localStorage.getItem('bibligame_api_key');
+  if (savedKey) {
+    S.key = savedKey;
+    document.getElementById('key-preview').textContent = savedKey.slice(0,10) + '...';
+    document.getElementById('api-input').value = savedKey;
+    renderHome();
+    show('s-home');
+  } else {
+    show('s-key');
+  }
+};
+</script>
+</body>
+</html>
