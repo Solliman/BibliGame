@@ -10,6 +10,7 @@ Questo documento tiene traccia della memoria storica di tutte le modifiche appor
 - [Aggiornamento Immersivo V2 (Icone & Shuffling)](#aggiornamento-immersivo-v2-icone--shuffling)
 - [Aggiornamento Immersivo V3 (Correzioni Spaziatura & progressioni)](#aggiornamento-immersivo-v3-correzioni-spaziatura--progressioni)
 - [Aggiornamento Immersivo V4 (Correzioni Finali UX & Localizzazione)](#aggiornamento-immersivo-v4-correzioni-finali-ux--localizzazione)
+- [Aggiornamento Immersivo V5 (Splash Screen & Benvenuto)](#aggiornamento-immersivo-v5-splash-screen--benvenuto)
 
 ---
 
@@ -52,3 +53,10 @@ Questo documento tiene traccia della memoria storica di tutte le modifiche appor
 * **Profilo Biblico Unitario**: Sostituita la dicitura del Profilo Unitario in *"Il Tuo Profilo del Cammino Biblico"*. Rimossi i vecchi titoli generici per inserire profili d'anima specifici (*Fede e Intelletto*, *Equilibrio e Sapienza*, *Azione e Compassione*), con testi descrittivi dinamici che si arricchiscono in base al numero di libri biblici completati.
 * **Aggiornamento di Stato della Home**: Aggiunto il rinfresco automatico della Home tramite `renderHome()` alla chiusura del libro, in modo che la scheda del Profilo Biblico compaia all'istante senza dover forzare la chiusura dell'app.
 * **Ripristino Stabilità Asset Locali**: Configurato il caricamento primario locale all'interno della WebView nativa dell'APK per evitare problemi di 404 e chiavi API scoperti sui server remoti non ancora configurati.
+
+---
+
+## Aggiornamento Immersivo V5 (Splash Screen & Benvenuto)
+* **Schermata Splash (Intro)**: Schermata iniziale di 5 secondi con il logo di BibliGame centrato ed un cerchio dorato sfumato ("sfumatura alle spalle"). Pulsante "Salta intro" per bypassare rapidamente la schermata.
+* **Messaggio di Benvenuto in Home**: Aggiunto un testo esplicativo accogliente all'apertura del gioco per i nuovi utenti che spiega come giocare, come funziona la profilazione finale ed il profilo globale in Home.
+* **Pulsante di Chiusura Permanente**: La card di benvenuto presenta un pulsante di chiusura (x) per rimuoverla in modo permanente (memorizzando la scelta in `localStorage`).

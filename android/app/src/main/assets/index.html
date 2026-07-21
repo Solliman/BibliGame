@@ -608,9 +608,101 @@ body {
   line-height: 1.5;
   text-align: center;
 }
+
+@keyframes splashPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.04); filter: brightness(1.06); }
+}
 </style>
 </head>
 <body>
+  <!-- SCHERMATA SPLASH (INTRODUZIONE) -->
+  <div id="splash-screen" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+  ">
+    <!-- Sfocatura morbida sullo sfondo (Sfumatura alle spalle) -->
+    <div style="
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, rgba(0,0,0,0) 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(40px);
+      z-index: 1;
+      pointer-events: none;
+    "></div>
+
+    <div style="
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    ">
+      <!-- Logo circolare con bordo premium ed effetto zoom pulsante -->
+      <div style="
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.12), 0 0 0 4px rgba(212,175,55,0.2);
+        margin-bottom: 2rem;
+        animation: splashPulse 4s ease-in-out infinite alternate;
+      ">
+        <img src="logo.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>
+      <h1 style="
+        font-family: var(--serif);
+        font-size: 32px;
+        color: var(--text);
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+      ">BibliGame</h1>
+      <p style="
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--text3);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      ">Un cammino interattivo</p>
+    </div>
+
+    <!-- Pulsante Salta -->
+    <button onclick="skipSplash()" style="
+      position: absolute;
+      bottom: 3rem;
+      z-index: 2;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: var(--sans);
+      letter-spacing: 0.05em;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    ">
+      Salta intro &rarr;
+    </button>
+  </div>
+
 <div class="app">
 
   <!-- HEADER -->
@@ -643,6 +735,9 @@ body {
 
   <!-- HOME -->
   <div id="s-home" class="screen">
+    <!-- PRESENTAZIONE BENVENUTO -->
+    <div id="welcome-container" style="display: none; margin-bottom: 2rem;"></div>
+
     <!-- PROFILO UNITARIO FUSO -->
     <div id="fused-profile-container" style="display: none; margin-bottom: 2rem;"></div>
 
@@ -1292,6 +1387,26 @@ function renderHome(){
     fusedContainer.style.display = 'none';
   }
 
+  // Welcome card rendering if no books completed and not dismissed
+  const welcomeContainer = document.getElementById('welcome-container');
+  const welcomeDismissed = localStorage.getItem('bibligame_welcome_dismissed');
+  if (!welcomeDismissed && completedBooksCount === 0) {
+    welcomeContainer.innerHTML = `
+      <div class="key-card" style="margin-top: 0; padding: 1.5rem; text-align: center; border-color: var(--gold); position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+        <button onclick="dismissWelcome(event)" style="position: absolute; top: 0.75rem; right: 0.75rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text3); line-height: 0.8; padding: 0;">&times;</button>
+        <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold); margin-bottom: 0.75rem;">Benvenuto in BibliGame</h3>
+        <div style="font-size: 28px; margin-bottom: 0.5rem;">📖</div>
+        <p style="font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 0;">
+          Scegli un libro della Bibbia, inizia il capitolo leggendo un inciso e divertiti a rispondere a una delle risposte multiple. Alla fine del completamento del libro avrai un tuo profilo umano e teologico, e così per ogni libro che leggerai e terminerai, ed il totale dei libri verrà sommato ad un profilo generale qui nella schermata home.
+        </p>
+        <div style="margin-top: 1rem; font-size: 13px; font-weight: 500; color: var(--gold);">Buon divertimento!</div>
+      </div>
+    `;
+    welcomeContainer.style.display = 'block';
+  } else {
+    welcomeContainer.style.display = 'none';
+  }
+
   BOOKS.forEach(group=>{
     html+=`<div class="testament-row">${group.t==='AT'?'Antico Testamento':'Nuovo Testamento'}</div>`;
     group.list.forEach(b=>{
@@ -1631,6 +1746,38 @@ function changeKey(){
   show('s-key');
 }
 
+let splashTimeout = null;
+
+function skipSplash() {
+  if (splashTimeout) clearTimeout(splashTimeout);
+  fadeSplash();
+}
+
+function fadeSplash() {
+  const splash = document.getElementById('splash-screen');
+  if (splash) {
+    splash.style.opacity = '0';
+    splash.style.pointerEvents = 'none';
+    setTimeout(() => {
+      splash.style.display = 'none';
+    }, 800);
+  }
+}
+
+function dismissWelcome(event) {
+  if (event) event.stopPropagation();
+  localStorage.setItem('bibligame_welcome_dismissed', 'true');
+  const container = document.getElementById('welcome-container');
+  if (container) {
+    container.style.opacity = '0';
+    container.style.transform = 'translateY(-10px)';
+    container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    setTimeout(() => {
+      container.style.display = 'none';
+    }, 300);
+  }
+}
+
 window.onload = function() {
   loadProgress();
   
@@ -1643,19 +1790,21 @@ window.onload = function() {
     }, 100);
     renderHome();
     show('s-home');
-    return;
-  }
-  
-  const savedKey = localStorage.getItem('bibligame_api_key');
-  if (savedKey) {
-    S.key = savedKey;
-    document.getElementById('key-preview').textContent = savedKey.slice(0,10) + '...';
-    document.getElementById('api-input').value = savedKey;
-    renderHome();
-    show('s-home');
   } else {
-    show('s-key');
+    const savedKey = localStorage.getItem('bibligame_api_key');
+    if (savedKey) {
+      S.key = savedKey;
+      document.getElementById('key-preview').textContent = savedKey.slice(0,10) + '...';
+      document.getElementById('api-input').value = savedKey;
+      renderHome();
+      show('s-home');
+    } else {
+      show('s-key');
+    }
   }
+
+  // Handle Splash Screen duration (5 seconds)
+  splashTimeout = setTimeout(fadeSplash, 5000);
 };
 </script>
 </body>
