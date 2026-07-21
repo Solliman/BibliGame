@@ -750,6 +750,11 @@ body {
     </div>
     <div class="section-label">Oppure scegli un libro</div>
     <div class="book-grid" id="book-grid"></div>
+    <div style="margin-top: 2.5rem; margin-bottom: 1rem; text-align: center;">
+      <button class="nav-btn" onclick="shareGame()" style="margin: 0 auto; display: flex; align-items: center; gap: 0.5rem; justify-content: center; width: 100%; max-width: 280px; padding: 0.75rem; border: 1px solid var(--gold); border-radius: var(--radius); background: rgba(212,175,55,0.05); color: var(--gold); font-weight: 500;">
+        <span>🔗</span> Condividi con un amico
+      </button>
+    </div>
     <div class="key-status">Chiave: <span id="key-preview"></span> · <a onclick="changeKey()">Cambia</a></div>
   </div>
 
@@ -883,7 +888,26 @@ const GA_TRACKING_ID = "";
 const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbypQQzxUs3G5zEgDtmNWP5BXdHKSjcoxvFNsOSFY0Rrm-r_Abntg3zNqM2DN2L_cQ0O/exec"; 
 
 const Analytics = {
+  playerId: null,
+  referrerId: null,
+
   init() {
+    // Generate or load unique Player ID
+    let pid = localStorage.getItem('bibligame_player_id');
+    if (!pid) {
+      pid = 'BG-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      localStorage.setItem('bibligame_player_id', pid);
+    }
+    this.playerId = pid;
+
+    // Check url search params for referrer (viral loop)
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+    if (ref && ref !== pid && !localStorage.getItem('bibligame_referrer_id')) {
+      localStorage.setItem('bibligame_referrer_id', ref);
+    }
+    this.referrerId = localStorage.getItem('bibligame_referrer_id') || "";
+
     if (GA_TRACKING_ID) {
       const script = document.createElement('script');
       script.async = true;
@@ -893,27 +917,33 @@ const Analytics = {
       window.dataLayer = window.dataLayer || [];
       window.gtag = function() { dataLayer.push(arguments); };
       gtag('js', new Date());
-      gtag('config', GA_TRACKING_ID);
+      gtag('config', GA_TRACKING_ID, { 'user_id': pid });
     }
   },
 
   trackEvent(eventName, params = {}) {
     console.log(`[Analytics] ${eventName}`, params);
     
+    const payload = {
+      event: eventName,
+      timestamp: new Date().toISOString(),
+      device: navigator.userAgent,
+      player_id: this.playerId,
+      referrer_id: this.referrerId,
+      ...params
+    };
+
     // 1. Invia a Google Analytics 4 (se attivo)
     if (GA_TRACKING_ID && window.gtag) {
-      gtag('event', eventName, params);
+      gtag('event', eventName, {
+        player_id: this.playerId,
+        referrer_id: this.referrerId,
+        ...params
+      });
     }
     
     // 2. Invia a Google Fogli tramite Webhook (se attivo)
     if (GOOGLE_SHEET_WEBHOOK_URL) {
-      const payload = {
-        event: eventName,
-        timestamp: new Date().toISOString(),
-        device: navigator.userAgent,
-        ...params
-      };
-      
       fetch(GOOGLE_SHEET_WEBHOOK_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -1830,6 +1860,27 @@ function dismissWelcome(event) {
     setTimeout(() => {
       container.style.display = 'none';
     }, 300);
+  }
+}
+
+function shareGame() {
+  const playerId = localStorage.getItem('bibligame_player_id') || 'BG-unknown';
+  const shareUrl = `https://solliman.github.io/BibliGame/?ref=${playerId}`;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: 'BibliGame',
+      text: 'Gioca anche tu a BibliGame, un viaggio interattivo attraverso la Bibbia!',
+      url: shareUrl
+    }).catch(err => console.log('Share error', err));
+  } else {
+    // Fallback copy to clipboard
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert("Link di condivisione copiato! Invialo ai tuoi amici su WhatsApp.");
+    }).catch(err => {
+      // Manual prompt fallback
+      prompt("Copia questo link e invialo ai tuoi amici:", shareUrl);
+    });
   }
 }
 
