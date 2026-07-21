@@ -873,6 +873,57 @@ const GENRE_PROMPTS={
 
 let S={key:'',bookIdx:0,chapter:1,canonical:0,human:0,total:0,completed:{},answered:false,currentData:null};
 
+// ==========================================
+// CONFIGURAZIONE STATISTICHE & ANALYTICS
+// ==========================================
+// Inserisci qui il tuo ID di Google Analytics (es. "G-XXXXXXXXXX") per abilitare il tracciamento automatico.
+const GA_TRACKING_ID = ""; 
+
+// Inserisci qui l'URL della tua Web App Google Apps Script per salvare le statistiche su Google Fogli.
+const GOOGLE_SHEET_WEBHOOK_URL = ""; 
+
+const Analytics = {
+  init() {
+    if (GA_TRACKING_ID) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function() { dataLayer.push(arguments); };
+      gtag('js', new Date());
+      gtag('config', GA_TRACKING_ID);
+    }
+  },
+
+  trackEvent(eventName, params = {}) {
+    console.log(`[Analytics] ${eventName}`, params);
+    
+    // 1. Invia a Google Analytics 4 (se attivo)
+    if (GA_TRACKING_ID && window.gtag) {
+      gtag('event', eventName, params);
+    }
+    
+    // 2. Invia a Google Fogli tramite Webhook (se attivo)
+    if (GOOGLE_SHEET_WEBHOOK_URL) {
+      const payload = {
+        event: eventName,
+        timestamp: new Date().toISOString(),
+        device: navigator.userAgent,
+        ...params
+      };
+      
+      fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.warn('Errore tracciamento foglio:', err));
+    }
+  }
+};
+
 // Web Audio API Synth for Bibbia Game
 const AudioSynth = {
   ctx: null,
@@ -1214,6 +1265,7 @@ function showProfile() {
   });
   
   const pct = Math.round((canonicalCount / totalCompleted) * 100);
+  Analytics.trackEvent('book_complete', { book_name: b.n, total_chapters: b.c, canonical_pct: pct, canonical_count: canonicalCount, human_count: humanCount });
   
   let pName = "";
   let pDesc = "";
@@ -1437,6 +1489,7 @@ function startFrom(idx){S.bookIdx=idx;S.chapter=1;S.sessionHistory=[];loadChapte
 function openBook(idx){
   S.bookIdx=idx;
   const b=allBooks[idx];
+  Analytics.trackEvent('book_open', { book_name: b.n, testament: b.testament });
   document.getElementById('c-title').textContent=b.n;
   document.getElementById('c-meta').textContent=`${b.testament} · ${b.c} capitoli`;
   const badge=document.getElementById('c-genre-badge');
@@ -1524,6 +1577,7 @@ async function loadChapter(){
   
   const chapterKey = b.a + '-' + S.chapter;
   const isReplay = S.completed[chapterKey] ? true : false;
+  Analytics.trackEvent('chapter_load', { book_name: b.n, chapter: S.chapter, is_replay: isReplay });
   const replayInstruction = isReplay ? "\n- NOTA DI REPLAY: Il giocatore sta rigiocando questo capitolo. Offri una prospettiva narrativa leggermente diversa o un focus differente sugli eventi dello stesso capitolo rispetto alla prima partita per rendere l'esperienza fresca ed esplorare sfumature diverse." : "";
   
   document.getElementById('g-meta').textContent=`${b.testament} · ${b.n}`;
@@ -1686,6 +1740,7 @@ function pick(idx, event){
   
   const d=S.currentData;
   const ch=d.choices[idx];
+  Analytics.trackEvent('choice_make', { book_name: allBooks[S.bookIdx].n, chapter: S.chapter, choice_type: ch.type });
   const key=allBooks[S.bookIdx].a+'-'+S.chapter;
   S.completed[key]=ch.type;
   
@@ -1780,6 +1835,8 @@ function dismissWelcome(event) {
 
 window.onload = function() {
   loadProgress();
+  Analytics.init();
+  Analytics.trackEvent('app_launch', { method: EMBEDDED_KEY_B64 ? 'embedded_key' : 'saved_key' });
   
   if (EMBEDDED_KEY_B64) {
     S.key = atob(EMBEDDED_KEY_B64.split("").reverse().join(""));
